@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  vault:
+    image: library/vault:1.8.2
+    tty: true
+    volumes:
+      - ./quorum-hashicorp-vault-plugin/docker/config.hcl:/vault/config.hcl:ro
+      - ./quorum-hashicorp-vault-plugin/build/bin/quorum-hashicorp-vault-plugin:/vault/plugins/quorum-hashicorp-vault-plugin
+    entrypoint: vault server -config=/vault/config.hcl
+    ports:
+      - 8200:8200
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - adamantium
+
+  vault-plugin-compile:
+    build: ./quorum-hashicorp-vault-plugin/docker
+    environment:
+      PLUGIN_FILE: /vault/plugins/quorum-hashicorp-vault-plugin
+    restart: "no"
+    volumes:
+      - ./quorum-hashicorp-vault-plugin/:/vault:rw
+    networks:
+      - adamantium
+    command: sh vault_build.sh    
+
+  vault-init:
+    build: ./quorum-hashicorp-vault-plugin/docker
+    environment:
+      VAULT_ADDR: http://vault:8200
+      PLUGIN_FILE: /vault/plugins/quorum-hashicorp-vault-plugin
+    restart: "no"
+    volumes:
+      - .env:/vault/.env
+      - ./.secret/:/vault/.secret/
+      - ./vault_init.sh:/vault/vault_init.sh
+      - ./bin/vault:/vault/bin/vault
+      - ./quorum-hashicorp-vault-plugin/build/bin:/vault/plugins:rw
+    depends_on:
+      - vault
+    networks:
+      - adamantium
+    command: sh /vault/vault_init.sh
+
+  adamantium:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    image: adamantium
+    working_dir: /app
+    command: ['npm', 'run', 'start:dev']
+    container_name: adamantium
+    depends_on:
+      - vault
+    environment:
+        - loglevel=none
+        - VAULT_ADDR=http://vault:8200
+        - VAULT_TOKEN
+    volumes:
+        - .:/app/
+        - /app/node_modules
+    ports:
+        - "3000:8080"
+    expose: 
+        - "3000"
+    depends_on:
+      - mongo
+    networks: 
+        - adamantium
+
+  mongo:
+    image: mongo
+    container_name: 'mongo'
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: example
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_USERNAME: example
+      MONGO_INITDB_PASSWORD: example
+    volumes:
+        - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+        - ./data:/data/
+    networks:
+      - adamantium
+    ports:
+      - 27017:27017      
+
+networks:
+  adamantium:
+    external: false
