@@ -41,4 +41,7 @@ test-secp256k1-verify-uncompressed:
 	yarn test src/signer/secp256k1.verify.uncompressed*
 
 test-secp256k1-compress:
-	yarn test src/signer/secp256k1.verify.compress
+	yarn test src/signer/secp256k1.compress*
+
+test-fix-secp256k1:
+	yarn test src/signer/secp256k1.malleable*
