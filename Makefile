@@ -30,3 +30,15 @@ login:
 
 transit:
 	./bin/vault secrets enable transit
+
+test-ed25519:
+	yarn test src/signer/ed25519*
+
+test-secp256k1-verify-compressed:
+	yarn test src/signer/secp256k1.verify.compressed*
+
+test-secp256k1-verify-uncompressed:
+	yarn test src/signer/secp256k1.verify.uncompressed*
+
+test-secp256k1-compress:
+	yarn test src/signer/secp256k1.verify.compress

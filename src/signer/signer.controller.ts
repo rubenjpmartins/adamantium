@@ -48,16 +48,7 @@ export class SignerController {
     @Post('/create')
     async createKey(@Body() body: CreateKeyRequest): Promise<any> {
         const keypath: string = ECCurve.vaultPathForNewKey(body.type, body.name)
-
-
-        const k1Body = {
-            curve: body.type,
-            id: body.name,
-            signing_algorithm: 'ecdsa',
-            tags: []
-        }
-
-        const response = await this.vaultService.createKey(keypath, body.type == ECCurve.secp256k1 ? k1Body : body)
+        const response = await this.vaultService.createKey(keypath, body)
         return response
     }
 

@@ -1,2 +1,7 @@
 node_modules
 .secret
+plugins/
+dist/
+bin/
+data/
+yarn-error.log

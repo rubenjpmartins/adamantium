@@ -6,20 +6,19 @@ export enum ECCurve {
 // Just adjust correct vault path for keys
 // secp256k1 is the unique one due to the plugin used to handle secp256k1
 export namespace ECCurve {
-    export function vaultPathForNewKey(keyType: string, name: string): string {
-        return keyType === ECCurve.secp256k1 ? 'quorum/ethereum/accounts' : `transit/keys/${name}`
+    export function vaultPathForNewKey(keyType: string, id: string): string {
+        return keyType === ECCurve.secp256k1 ? 'quorum/ethereum/accounts' : `transit/keys/${id}`
     }
 
-    export function vaultPathForSigning(keyType: string, name: string): string {
-        return keyType === ECCurve.secp256k1 ? `quorum/ethereum/accounts/${name}/sign` : `transit/sign/${name}`
+    export function vaultPathForSigning(keyType: string, id: string): string {
+        return keyType === ECCurve.secp256k1 ? `quorum/ethereum/accounts/${id}/sign` : `transit/sign/${id}`
     }
 
-    export function vaultPathGetPubKey(keyType: string, name: string): string {
-        return keyType === ECCurve.secp256k1 ? `quorum/ethereum/accounts/${name}` : `transit/keys/${name}`
+    export function vaultPathGetPubKey(keyType: string, id: string): string {
+        return keyType === ECCurve.secp256k1 ? `quorum/ethereum/accounts/${id}` : `transit/keys/${id}`
     }
 
     export function vaultPathGetKeys(keyType: string): string {
         return keyType === ECCurve.secp256k1 ? `quorum/ethereum/accounts` : `transit/keys`
     }
-
 }

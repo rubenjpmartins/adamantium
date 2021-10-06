@@ -18,15 +18,15 @@ export class CryptoCurveService {
      * @returns true / false 
      */
     public verify(msg: Buffer, curve: ECCurve, hashAlgo: HASH_ALGO, pub: Buffer, r: Buffer, s: Buffer, y_parity?: Buffer): boolean {
-        const sig: Buffer = !y_parity ? Buffer.concat([r, s]) : Buffer.concat([r, s, y_parity])
-        
+        // const sig: Buffer = !y_parity ? Buffer.concat([r, s]) : Buffer.concat([r, s, y_parity])
+        const sig: Buffer = Buffer.concat([r, s])
+        const hash: Buffer = Hasher.hash(msg, hashAlgo)
+
         if (curve === ECCurve.secp256k1) {
-            const hash: Buffer = Hasher.hash(msg, hashAlgo)
             return ecdsaVerify256k1(new Uint8Array(sig), new Uint8Array(hash), new Uint8Array(pub))
         }
         
         // normal eddsa
-        const hash: Buffer = Hasher.hash(msg, hashAlgo)
         return eddsaVerify(hash, new Uint8Array(sig), new Uint8Array(pub))
     }
 }
