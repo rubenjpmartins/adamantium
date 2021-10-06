@@ -45,3 +45,6 @@ test-secp256k1-compress:
 
 test-fix-secp256k1:
 	yarn test src/signer/secp256k1.malleable*
+
+test-eth-addr:
+	yarn test src/signer/ethereum-address.*
