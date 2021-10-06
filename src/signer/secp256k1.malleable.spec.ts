@@ -40,12 +40,6 @@ describe('Malleability', () => {
         const halfCurve: BN = curveField.divn(2)
 
         // Do we have a signature on the wrong side of the curve? 
-        if (new BN(s).gt(halfCurve)) {
-            console.log(`inverting S!`)
-
-            // invert s! 
-            s = (new BN(s).sub(curveField)).toBuffer()
-        }
 
         // valid signature?
         expect(ecService.verify(msg, ECCurve.secp256k1, HASH_ALGO.KECCAK256, pub, r, s)).toBe(true)
