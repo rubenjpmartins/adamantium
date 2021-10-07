@@ -1,8 +1,8 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Logger, Post } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { TransactionRequest } from "./transaction.request";
-import { SignerService } from "src/signer/services/signer.service";
+import { TransactionService } from "src/signer/services/transaction.service";
 import { Hasher, HASH_ALGO } from "src/signer/hasher";
 import { ECCurve } from "../vault/vault-keys";
 import { randomBytes } from "crypto";
@@ -20,6 +20,7 @@ import {
     toBuffer,
     unpadBuffer,
 } from 'ethereumjs-util'
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Controller('eth')
 @ApiTags('Ethereum')
@@ -28,8 +29,13 @@ export class EthereumController {
     constructor(
         private readonly http: HttpService,
         private readonly nonceService: NonceService,
-        private readonly signer: SignerService
+        private readonly txService: TransactionService
     ) { }
+
+    @Get('/all/:address')
+    async allTransactions(@Param('address') address: string): Promise<any> {
+        return this.txService.getTransactions(address)
+    }
 
     @Post('/send')
     async send(@Body() request: TransactionRequest): Promise<any> {
@@ -51,7 +57,7 @@ export class EthereumController {
 
         // Plugin used for secp256k1 doesn't support pre-hashed payloads. Auto hashes to keccak256
         // so we just pass the encoded payload here
-        const signature: string = await this.signer.sign(ECCurve.secp256k1, request.keyId, rlp.encode([
+        const signature: string = await this.txService.sign(ECCurve.secp256k1, request.keyId, rlp.encode([
             bnToUnpaddedBuffer(tx.nonce),
             bnToUnpaddedBuffer(tx.gasPrice),
             bnToUnpaddedBuffer(tx.gasLimit),
@@ -68,13 +74,22 @@ export class EthereumController {
         const r = new BN(sigBuffer.slice(0, 32))
         const s = new BN(sigBuffer.slice(32, 64))
 
-        let recid = new BN(sigBuffer.slice(64, 66)).toNumber()
-        const v = new BN(recid + chainId * 2 + 35)
+        const recid = new BN(sigBuffer.slice(64, 66))
+        const v = new BN(recid.toNumber() + chainId * 2 + 35)
 
         const signedTxParams = { ...txParams, v, r, s }
         const signedTx = Transaction.fromTxData(signedTxParams, { common })
 
-        return this.sendSignedTransaction('0x' + signedTx.serialize().toString('hex'))
+        const txPayload = '0x' + signedTx.serialize().toString('hex')
+
+        await this.txService.saveTransaction(request.keyId, txPayload, nonce, recid.toBuffer(), r.toBuffer(), s.toBuffer())
+        return this.sendSignedTransaction(txPayload)
+    }
+
+    @Cron(CronExpression.EVERY_10_SECONDS)
+    handleCron() {
+      Logger.debug('Called when the current second is 45');
+      
     }
 
     /**

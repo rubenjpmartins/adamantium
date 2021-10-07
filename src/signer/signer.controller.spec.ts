@@ -1,13 +1,13 @@
 import { SignerController } from "./signer.controller"
 import { createMockInstance } from 'jest-create-mock-instance'
 import { VaultService } from "..//vault/vault.service"
-import { SignerService } from "./services/signer.service"
+import { TransactionService } from "./services/transaction.service"
 
 describe('Signer', () => {
 
     let controller: SignerController
     beforeEach(() => {
-        controller = new SignerController(createMockInstance(VaultService), createMockInstance(SignerService))
+        controller = new SignerController(createMockInstance(VaultService), createMockInstance(TransactionService))
     })
 
     it("verify signature", () => {

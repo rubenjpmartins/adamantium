@@ -20,23 +20,24 @@ export class NonceService {
             .manager.transaction((manager: EntityManager): Promise<BigNumber> => {
 
                 return manager.createQueryBuilder(NonceEntity, 'nonce')
-                .setLock('pessimistic_write')
+                .setLock('pessimistic_read')
                 .where({ address })
                 .getOne()
                 .then (async (nonceRecord) => {
                     console.log(`nonceRecord: ${nonceRecord}`)
-                    if(undefined === nonceRecord) {
-                        await this.nonceRepo.insert({
-                            address,
-                            nonce: BigNumber.from(0).toString()
-                        })
-                        return BigNumber.from(0)
+                    let newNonce: BigNumber = BigNumber.from(-1)
+                    if(nonceRecord) {
+                        newNonce = BigNumber.from(nonceRecord.nonce)
                     }
     
-                    const newNonce: BigNumber = BigNumber.from(nonceRecord.nonce).add(1)
-                    await manager.update(NonceEntity, { address }, { nonce: newNonce.toString() })
+                    newNonce = BigNumber.from(newNonce).add(1)
+                    nonceRecord = await manager.getRepository(NonceEntity).save({
+                        id: nonceRecord ? nonceRecord.id : undefined,
+                        address,
+                        nonce: newNonce.toString()
+                    })
 
-                    console.log(`nonceRecord: ${nonceRecord}`)
+                    console.log(`nonceRecord: ${newNonce.toString()}`)
 
                     return BigNumber.from(nonceRecord.nonce)
                 })

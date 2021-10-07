@@ -5,13 +5,13 @@ import { VaultService } from "../vault/vault.service";
 import { CreateKeyRequest } from "./requests/create-key.request";
 import { Hasher, HASH_ALGO } from "./hasher";
 import { SignRequest } from "./requests/sign.request";
-import { SignerService } from "./services/signer.service";
+import { TransactionService } from "./services/transaction.service";
 
 @Controller('signer')
 @ApiTags('Signer')
 export class SignerController {
     constructor(private readonly vaultService: VaultService,
-        private readonly signerService: SignerService
+        private readonly signerService: TransactionService
         ) {}
     
     /**

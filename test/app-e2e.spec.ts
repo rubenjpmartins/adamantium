@@ -27,7 +27,7 @@ describe('e2e', () => {
         console.log(`response body : ${JSON.stringify(response.body.data)}`)
     })
 
-    it.only('(OK) e2e send transaction', async () => {
+    it('(OK) e2e send transaction', async () => {
         const createRequest: CreateKeyRequest = {
             name: v4(),
             type: ECCurve.secp256k1
@@ -45,10 +45,33 @@ describe('e2e', () => {
             keyId: address
         }
 
-        const sendResponse = await app.post('v1/eth/send')
+        const sendResponse = await app.post('/v1/eth/send')
         .send(sendRequest)
         .expect(201)
 
         console.log(`sendResponse : ${JSON.stringify(sendResponse)}`)
+    })
+
+    it('(OK) send several txs from same account', async () => {
+        const createRequest: CreateKeyRequest = {
+            name: v4(),
+            type: ECCurve.secp256k1
+        }
+
+        const response = await app.post('/v1/signer/create')
+        .send(createRequest)
+        .expect(201)
+
+        console.log(`response body : ${JSON.stringify(response.body.data)}`)
+        const address = response.body.data.address
+
+        for (let index = 0; index < 20; index++) {
+            await app.post('/v1/eth/send')
+            .send({
+                data: v4(),
+                keyId: address
+            })
+            .expect(201)            
+        }
     })
 })
