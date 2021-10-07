@@ -13,9 +13,9 @@ import { VaultModule } from "./vault/vault.module";
       password: 'example',
       entities: [NonceEntity],
       synchronize: true,
-      type: 'mongodb',
-      host: 'mongo',
-      port: 27017
+      type: 'postgres',
+      host: 'db_postgres',
+      port: 5432
     }),
     SignerModule,
     EthereumModule,

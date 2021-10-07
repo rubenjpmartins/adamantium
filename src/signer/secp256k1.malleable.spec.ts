@@ -54,6 +54,7 @@ describe('Malleability', () => {
     it('(OK) Standard secp256k1 ECDSA to proper R, S, V', () => {
         key = ec.genKeyPair();
         pub = Buffer.from(key.getPublic('hex'), 'hex')
+        expect(pub.byteLength).toBe(65)
         
         // Signing somehwere (i.e HSM)
         const signature = key.sign(msgHash);

@@ -1,13 +1,14 @@
+import { BigNumber } from "@ethersproject/bignumber";
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class NonceEntity {
-    @PrimaryGeneratedColumn({ type: 'number' })
-    id?: string
+    @PrimaryGeneratedColumn({ type: 'bigint' })
+    id?: Number
 
     @Column()
     address: string
 
-    @Column({ type: 'number', default: 0})
-    nonce: number
+    @Column({ type: 'numeric', default: 0})
+    nonce: string
 }

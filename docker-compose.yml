@@ -69,27 +69,31 @@ services:
     expose: 
         - "3000"
     depends_on:
-      - mongo
+      - db_postgres
     networks: 
         - adamantium
 
-  mongo:
-    image: mongo
-    container_name: 'mongo'
-    restart: always
-    environment:
-      MONGO_INITDB_DATABASE: example
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_USERNAME: example
-      MONGO_INITDB_PASSWORD: example
-    volumes:
-        - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
-        - ./data:/data/
+  db_postgres:
+    # Official Postgres image from DockerHub (we use the last version)
+    image: 'postgres:latest'
+    container_name: db_postgres
+
+    # By default, a Postgres database is running on the 5432 port.
+    # If we want to access the database from our computer (outside the container),
+    # we must share the port with our computer's port.
+    # The syntax is [port we want on our machine]:[port we want to retrieve in the container]
+    # Note: You are free to change your computer's port,
+    # but take into consideration that it will change the way
+    # you are connecting to your database.
+    ports:
+      - 5432:5432
     networks:
       - adamantium
-    ports:
-      - 27017:27017      
+
+    environment:
+      POSTGRES_USER: example # The PostgreSQL user (useful to connect to the database)
+      POSTGRES_PASSWORD: example # The PostgreSQL password (useful to connect to the database)
+      POSTGRES_DB: example # The PostgreSQL default database (automatically created at first launch)    
 
 networks:
   adamantium:
