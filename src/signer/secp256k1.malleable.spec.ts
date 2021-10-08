@@ -41,10 +41,7 @@ describe('Malleability', () => {
 
         // Do we have a signature on the wrong side of the curve? 
         if (new BN(s).gt(halfCurve)) {
-            console.log(`inverting S!`)
-
-            // invert s! 
-            s = curveField.sub(new BN(s)).toBuffer()
+            console.log(`bad S!`)
         }
 
         // valid signature?

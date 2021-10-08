@@ -21,8 +21,7 @@ describe('ECC Verify', () => {
         
         const r: Buffer = sig.slice(0, 32)
         const s: Buffer = sig.slice(32, 64)
-        const y_parity: Buffer = sig.slice(64, 66)
 
-        expect(service.verify(msg, ECCurve.secp256k1, HASH_ALGO.KECCAK256, pub, r, s, y_parity)).toBe(true)
+        expect(service.verify(msg, ECCurve.secp256k1, HASH_ALGO.KECCAK256, pub, r, s)).toBe(true)
     })
 })

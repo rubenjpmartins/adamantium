@@ -17,8 +17,7 @@ export class CryptoCurveService {
      * @param sig - signature buffer
      * @returns true / false 
      */
-    public verify(msg: Buffer, curve: ECCurve, hashAlgo: HASH_ALGO, pub: Buffer, r: Buffer, s: Buffer, y_parity?: Buffer): boolean {
-        // const sig: Buffer = !y_parity ? Buffer.concat([r, s]) : Buffer.concat([r, s, y_parity])
+    public verify(msg: Buffer, curve: ECCurve, hashAlgo: HASH_ALGO, pub: Buffer, r: Buffer, s: Buffer): boolean {
         const sig: Buffer = Buffer.concat([r, s])
         const hash: Buffer = Hasher.hash(msg, hashAlgo)
 
@@ -26,7 +25,7 @@ export class CryptoCurveService {
             return ecdsaVerify256k1(new Uint8Array(sig), new Uint8Array(hash), new Uint8Array(pub))
         }
         
-        // normal eddsa
+        // eddsa
         return eddsaVerify(hash, new Uint8Array(sig), new Uint8Array(pub))
     }
 }
