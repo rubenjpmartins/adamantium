@@ -48,3 +48,6 @@ test-eth-addr:
 
 test-eth-tx-hash:
 	yarn test:e2e:single test/tx-hasher*
+
+test-nonce-spam:
+	yarn test:e2e:single test/nonce-spammer*

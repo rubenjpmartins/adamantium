@@ -28,7 +28,7 @@ export class EthereumController {
         private readonly txService: TransactionService
     ) { }
 
-    @Get('/all/:address')
+    @Get('/all/tx/:address')
     async allTransactions(@Param('address') address: string): Promise<any> {
         return this.txService.getTransactions(address)
     }
