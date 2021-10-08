@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'crypto';
 import supertest, { SuperTest, Test } from 'supertest';
 import { CreateKeyRequest } from '../src/signer/requests/create-key.request'
-import { TransactionRequest } from '../src/ethereum/transaction.request'
+import { TransactionRequest } from '../src/ethereum/requests/transaction.request'
 import { ECCurve } from '../src/vault/vault-keys';
 import { v4 } from 'uuid'
 

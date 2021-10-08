@@ -2,6 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
+import BN from "bn.js";
 import { TransactionEntity } from "src/ethereum/entities/transaction.entity";
 import { Repository } from "typeorm";
 import { ECCurve } from "../../vault/vault-keys";
@@ -44,7 +45,7 @@ export class TransactionService {
     async saveTransaction(
         address: string, 
         payload: string, 
-        nonce: BigNumber, y_parity: Buffer, r: Buffer, s: Buffer): Promise<TransactionEntity> {
+        nonce: BN, y_parity: Buffer, r: Buffer, s: Buffer): Promise<TransactionEntity> {
         return this.txRepo.save({
             address,
             payload,
