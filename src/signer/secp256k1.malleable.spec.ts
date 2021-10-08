@@ -44,7 +44,7 @@ describe('Malleability', () => {
             console.log(`inverting S!`)
 
             // invert s! 
-            s = (new BN(s).sub(curveField)).toBuffer()
+            s = curveField.sub(new BN(s)).toBuffer()
         }
 
         // valid signature?
