@@ -4,7 +4,7 @@ import { ECCurve } from "../../vault/vault-keys";
 
 export class SignRequest {
     @ApiProperty()
-    name: string
+    keyId: string
 
     @ApiProperty({
         enum: ECCurve,
@@ -15,4 +15,7 @@ export class SignRequest {
 
     @ApiProperty()
     data: string
+
+    @ApiProperty({ required: false })
+    encoding?: BufferEncoding
 }

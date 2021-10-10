@@ -51,3 +51,9 @@ test-eth-tx-hash:
 
 test-nonce-spam:
 	yarn test:e2e:single test/nonce-spammer*
+
+test-send-tx:
+	yarn test:e2e:single test/app-e2e*
+
+test-ecdh:
+	yarn test:single src/signer/ecdh.*

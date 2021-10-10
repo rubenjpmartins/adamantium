@@ -1,4 +1,3 @@
-import { randomBytes, randomUUID } from 'crypto';
 import supertest, { SuperTest, Test } from 'supertest';
 import { CreateKeyRequest } from '../src/signer/requests/create-key.request'
 import { TransactionRequest } from '../src/ethereum/requests/transaction.request'
@@ -16,7 +15,7 @@ describe('e2e', () => {
 
     it('(OK) e2e post create key', async () => {
         const createRequest: CreateKeyRequest = {
-            name: v4(),
+            id: v4(),
             type: ECCurve.secp256k1
         }
 
@@ -29,7 +28,7 @@ describe('e2e', () => {
 
     it('(OK) e2e send transaction', async () => {
         const createRequest: CreateKeyRequest = {
-            name: v4(),
+            id: v4(),
             type: ECCurve.secp256k1
         }
 

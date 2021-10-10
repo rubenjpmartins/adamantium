@@ -17,6 +17,7 @@ import {
 } from 'ethereumjs-util'
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { RawTransactionRequest } from "./requests/raw-transaction.request";
+import { Hasher, HASH_ALGO } from "src/signer/hasher";
 
 @Controller('eth')
 @ApiTags('Ethereum')
@@ -70,6 +71,10 @@ export class EthereumController {
     // }
 
     async txSign(txValues: any[], address: string, chainId: number, common: Common): Promise<Buffer> {
+
+        console.log(`address: ${address}`)
+
+        // const txTash: Buffer = Hasher.hash(rlp.encode(txValues), HASH_ALGO.KECCAK256)
 
         // Plugin used for secp256k1 doesn't support pre-hashed payloads. Auto hashes to keccak256
         // so we just pass the encoded payload here

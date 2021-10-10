@@ -3,12 +3,14 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger"
 import { join } from "path"
 import "source-map-support/register"
 import { ValidationPipe } from "@nestjs/common"
-import { ExceptionsFilter } from "./exception.filter"
 import { LoggingInterceptor } from "./logging.interceptor"
 import { NestExpressApplication } from "@nestjs/platform-express"
 import { AppModule } from "./app.module"
 import { SignerModule } from "./signer/signer.module"
 import { EthereumModule } from "./ethereum/ethereum.module"
+import { readFileSync } from 'fs'
+import * as util from 'util'
+import { read } from "fs/promises"
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -36,7 +38,10 @@ async function bootstrap() {
     include: [SignerModule, EthereumModule]
   })
 
-  SwaggerModule.setup("docs", app, swaggerDocs)
+  const themeFile: Buffer = readFileSync('/app/node_modules/swagger-ui-themes/themes/3.x/theme-newspaper.css')
+  SwaggerModule.setup("docs", app, swaggerDocs, {
+    customCss: themeFile.toString()
+  })
 
   if (process.env.NODE_ENV === "development") {
     app.useStaticAssets(join(__dirname, "..", "documentation"))

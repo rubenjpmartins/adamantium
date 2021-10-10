@@ -33,12 +33,12 @@ export class SignerController {
      * @param type 
      * @returns 
      */
-    @Get('/pub/all')
-    async getKeys(
-        @Query('type') type: string
-    ): Promise<any> {
-        return this.vaultService.read(ECCurve.vaultPathGetKeys(type))
-    }
+    // @Get('/pub/all')
+    // async getKeys(
+    //     @Query('type') type: string
+    // ): Promise<any> {
+    //     return this.vaultService.read(ECCurve.vaultPathGetKeys(type))
+    // }
 
     /**
      * 
@@ -47,7 +47,7 @@ export class SignerController {
      */
     @Post('/create')
     async createKey(@Body() body: CreateKeyRequest): Promise<any> {
-        const keypath: string = ECCurve.vaultPathForNewKey(body.type, body.name)
+        const keypath: string = ECCurve.vaultPathForNewKey(body.type, body.id)
         const response = await this.vaultService.createKey(keypath, body)
         return response
     }
@@ -59,18 +59,7 @@ export class SignerController {
      */
     @Post('/sign')
     async sign(@Body() body: SignRequest): Promise<any> {
-        return this.signerService.sign(body.type, body.name, Buffer.from(body.data))
-        // const keypath: string = ECCurve.vaultPathForSigning(body.type, body.name)
-
-        // if (body.type == ECCurve.secp256k1) {
-        //     const hex: string = '0x' + Buffer.from(body.data).toString('hex')
-        //     return this.vaultService.signData(keypath, { id: body.name, data: hex })    
-        // }
-        
-        // // ed25519
-        // const hash = Hasher.hash(Buffer.from(body.data), HASH_ALGO.BLAKE2b)
-
-        // console.log(`hash: ${hash.toString('base64')}`)
-        // return this.vaultService.signData(keypath, { input: hash.toString('base64'), prehashed: true })
+        const encoding: BufferEncoding = body.encoding ? body.encoding : 'utf-8'
+        return this.signerService.sign(body.type, body.keyId, Buffer.from(body.data, encoding))
     }
 }

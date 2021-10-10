@@ -11,7 +11,7 @@ export class CreateKeyRequest {
     type: string
 
     @ApiProperty()
-    name: string
+    id: string
 }
 
 export const CreateKeySchema = Joi.object({

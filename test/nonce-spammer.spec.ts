@@ -3,6 +3,8 @@ import { CreateKeyRequest } from '../src/signer/requests/create-key.request'
 import { ECCurve } from '../src/vault/vault-keys';
 import { v4 } from 'uuid'
 
+
+jest.setTimeout(10000)
 describe('e2e', () => {
     let app: SuperTest<Test>
 
@@ -12,7 +14,7 @@ describe('e2e', () => {
 
     it('(OK) send several txs from same account', async () => {
         const createRequest: CreateKeyRequest = {
-            name: v4(),
+            id: v4(),
             type: ECCurve.secp256k1
         }
 

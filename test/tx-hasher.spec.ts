@@ -11,6 +11,9 @@ import {
     unpadBuffer,
     ecrecover
 } from 'ethereumjs-util'
+import { CreateKeyRequest } from '../src/signer/requests/create-key.request';
+import { SignRequest } from '../src/signer/requests/sign.request'
+import { ECCurve } from '../src/vault/vault-keys';
 
 var EC = require('elliptic').ec;
 const ec = new EC('secp256k1')
@@ -18,20 +21,16 @@ const ec = new EC('secp256k1')
 jest.setTimeout(20000)
 describe('e2e Create transaction hashes offline', () => {
     let app: SuperTest<Test>
-    let key
 
-    let pub: Buffer
-    let msg: Buffer
-    let msgHash: Buffer
     beforeEach(() => {
         app = supertest('http://localhost:3000')
-        msg = Buffer.from('message')
-        msgHash = Hasher.hash(msg, HASH_ALGO.KECCAK256)
     })
 
     it('(OK) e2e send transaction', async () => {
-        key = ec.genKeyPair();
-        pub = Buffer.from(key.getPublic('hex'), 'hex')
+        // key = ec.genKeyPair();
+        // pub = Buffer.from(key.getPublic('hex'), 'hex')
+
+        const msg: string = '7f7465737432000000000000000000000000000000000000000000000000000000600057'
 
         // mainnet?
         const chainId: number = 1
@@ -44,7 +43,7 @@ describe('e2e Create transaction hashes offline', () => {
             bnToUnpaddedBuffer(new BN(2100000)), //gas
             Buffer.from('93C9a01E2b3eab33A7ca504D9B8e05bF7B5720cF', 'hex'), //to
             bnToUnpaddedBuffer(new BN(0)), // value
-            Buffer.from('7f7465737432000000000000000000000000000000000000000000000000000000600057', 'hex'), // data
+            Buffer.from(msg, 'hex'), // data
             toBuffer(new BN(chainId)), //chain id
             unpadBuffer(toBuffer(0)), // 0
             unpadBuffer(toBuffer(0)) // 0
@@ -55,47 +54,48 @@ describe('e2e Create transaction hashes offline', () => {
 
         // Step (2) - Hash encoded tx 
         const hash: Buffer = Hasher.hash(encodedTx, HASH_ALGO.KECCAK256)
-        
-        // Step (3) - Sign
-        // ================================================================================
-        // ================ ETHEREUM SIGNATURE TREATMENT ==================================
-        // ================================================================================
-        // ECDSA (r, s) -> Standard ECDSA 
-        const signature = key.sign(hash);
-        
-        const r: Buffer = Buffer.from(signature.r.toString(16), 'hex')
-        let s: Buffer = Buffer.from(signature.s.toString(16), 'hex')
 
-        // finite field
-        const curveField: BN = new BN(Buffer.from(ec.curve.n.toString(16), 'hex'))
-
-        // Half the curve as in ethereum secp256k1.n / 2 is the only valid half
-        const halfCurve: BN = curveField.divn(2)
-
-        // Do we have a signature on the wrong side of the curve? 
-        if (new BN(s).gt(halfCurve)) {
-            console.log(`inverting S!`)
-
-            // invert s! 
-            s = (new BN(s).sub(curveField)).toBuffer()
+        const createRequest: CreateKeyRequest = {
+            id: v4(),
+            type: ECCurve.secp256k1
         }
+
+        const response = await app.post('/v1/signer/create')
+            .send(createRequest)
+            .expect(201)
+
+        const address = response.body.data.address
+        console.log(`address: ${address}`)
+
+        // remove 0x + 04
+        const pub: Buffer = Buffer.from(response.body.data.public_key.slice(4), 'hex')
+
+        const signedRequest: SignRequest = {
+            data: encodedTx.toString('hex'),
+            type: ECCurve.secp256k1,
+            keyId: address,
+            encoding: 'hex'
+        }
+
+        // Step (3) - Sign
+        const sigResponse = await app.post('/v1/signer/sign')
+            .send(signedRequest)
+            .expect(201)
+
+        // strip 0x
+        const signature: Buffer = Buffer.from(sigResponse.text.slice(2), 'hex')
+
+        const r: Buffer = signature.slice(0, 32)
+        let s: Buffer = signature.slice(32, 64)
+        let recid: number = new BN(signature.slice(64, 66)).toNumber()
 
         // Ethereum recovery id! 
         // necessary to calculate V
         // Needed to provide proper V so that public keys can be recovered from signatures
-        let recid = 0
         let v = recid + chainId * 2 + 35
-        let recoveredPub: Buffer = ecrecover(msgHash, v, r, s, chainId);
-        if (!recoveredPub.equals(pub)) {
-            recid = recid ^ 1 //invert
-            v = recid + chainId * 2 + 35
-            recoveredPub = ecrecover(msgHash, v, r, s, chainId);
-        }
+        let recoveredPub: Buffer = ecrecover(hash, v, r, s, chainId);
+        expect(recoveredPub.toString('hex')).toEqual(pub.toString('hex'))
 
-        // ================================================================================
-        // ================ END ETHEREUM SIGNATURE TREATMENT ==============================
-        // ================================================================================
-   
         // Step(4) - CRAFT ENCODED SIGNED TRANSACTION
         // include signature values to tx body to be encoded again
         txValues.splice(6, 1, new BN(v).toBuffer())
@@ -114,9 +114,11 @@ describe('e2e Create transaction hashes offline', () => {
 
         // Step (6) - SEND TX AND CHECK IF HASHES MATCH
         const sendResponse = await app.post('/v1/eth/send/rawTxPayload')
-        .send(sendRawRequest)
-        .expect(201)
+            .send(sendRawRequest)
+            .expect(201)
         const responseBody = JSON.parse(sendResponse.text)
+
+        console.log(`Tx hash : ${'0x' + transactionHash.toString('hex')}`)
 
         // DO THEY MATCH?
         expect(responseBody.result).toBe('0x' + transactionHash.toString('hex'))
