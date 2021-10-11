@@ -8,7 +8,7 @@ import { randomBytes, randomInt } from 'crypto';
 
 const ec = new EC('secp256k1')
 
-interface SignedPayload {
+interface SignedMessage {
     pub: string
     r: string,
     s: string,
@@ -16,7 +16,7 @@ interface SignedPayload {
 }
 
 // Eth Signatures with S > secp256k1.n / 2 + 1
-const invalidEthSignatures: SignedPayload[] = [
+const invalidEthSignatures: SignedMessage[] = [
     {
         msg: '6d657373616765',
         pub: '04a088367d805bc43c73032473a4c0a57cf9d0412afbd56347080d6c458ea45d2c01e6934d7448f13d072bd45ecb16f21651d66abd7fd94848a55eed541419a397',
@@ -32,7 +32,7 @@ const invalidEthSignatures: SignedPayload[] = [
 ]
 
 // Eth Signatures => valid. S < secp256k1.n / 2 + 1
-const validEthSignatures: SignedPayload[] = [
+const validEthSignatures: SignedMessage[] = [
     {
         msg: '6d657373616765',
         pub: '049ab2a0098443fdc2139e5ba7fc664c34fd766eaa5cc8085ce53057e01664bb5de78f41c454fb40d9ac90e3d3f37640599227b21da909ff9ba994bd286b976354',
@@ -49,7 +49,7 @@ const validEthSignatures: SignedPayload[] = [
 
 describe('Malleability', () => {
     let ecService: CryptoCurveService
-    let allPossibleSignedPayloads: SignedPayload[]
+    let allPossibleSignedPayloads: SignedMessage[]
 
     beforeEach(() => {
         ecService = new CryptoCurveService()
@@ -57,13 +57,17 @@ describe('Malleability', () => {
     })
 
     it('(OK) secp256k1 ECDSA => Ethereum Valid Signatures', () => {
-        // pick a signed message
-        const signedMessage: SignedPayload = allPossibleSignedPayloads[randomInt(3)]
-        console.log(`signedMessage : ${JSON.stringify(signedMessage)}`)
+        // pick random message payload
+        const signedMessage: SignedMessage = allPossibleSignedPayloads[randomInt(3)]
 
+        // Signature params
         const r: Buffer = Buffer.from(signedMessage.r, 'hex')
         let s: Buffer = Buffer.from(signedMessage.s, 'hex')
+
+        // public key
         const pub: Buffer = Buffer.from(signedMessage.pub, 'hex')
+
+        // message
         const msg: Buffer = Buffer.from(signedMessage.msg, 'hex')
 
         // orderOfCurve -> nr of possible points over a specific field (i.e, secp256k1 field)
@@ -86,7 +90,7 @@ describe('Malleability', () => {
     })
 
     it('(OK) Standard secp256k1 ECDSA to proper R, S, V', () => {
-        const signedMessage: SignedPayload = allPossibleSignedPayloads[randomInt(3)]
+        const signedMessage: SignedMessage = allPossibleSignedPayloads[randomInt(3)]
 
         // ECDSA (r, s) -> Standard ECDSA 
         const r: Buffer = Buffer.from(signedMessage.r, 'hex')
