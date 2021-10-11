@@ -27,6 +27,7 @@ echo "VAULT_TOKEN=${VAULT_TOKEN}" > .env
 
 # transit
 # ./bin/vault secrets enable transit
+echo "enabling transit..."
 curl \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
