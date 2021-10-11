@@ -5,3 +5,4 @@ dist/
 bin/
 data/
 yarn-error.log
+quorum-hashicorp-vault-plugin/build/*

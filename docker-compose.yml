@@ -36,7 +36,6 @@ services:
       - .env:/vault/.env
       - ./.secret/:/vault/.secret/
       - ./vault_init.sh:/vault/vault_init.sh
-      - ./bin/vault:/vault/bin/vault
       - ./quorum-hashicorp-vault-plugin/build/bin:/vault/plugins:rw
     depends_on:
       - vault
