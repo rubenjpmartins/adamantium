@@ -1,5 +1,5 @@
-node_modules
-.secret
+node_modules/*
+.secret/*
 plugins/
 dist/
 bin/
