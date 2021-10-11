@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-RUN apk update && apk add python3 make g++ bash curl jq automake
+RUN apk update && apk add python3 make g++ bash curl jq automake libtool autoconf
 
 # Copy projects folder into container's app folder
 COPY . /app
