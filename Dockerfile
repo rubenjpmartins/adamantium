@@ -17,7 +17,7 @@ EXPOSE 3000
 # Dont run as root
 USER node
 
-RUN npm install
-RUN npm run build
+RUN yarn
+RUN yarn run build
 
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "yarn", "start:prod" ]
