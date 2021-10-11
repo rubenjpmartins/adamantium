@@ -14,7 +14,7 @@ if [ ! -f "$FILE" ]; then
     echo "done"
 fi
 
-./bin/vault status
+# ./bin/vault status
 
 # unseal
 jq '.keys' ./.secret/shamir_shares | jq -c '.[]' | xargs -n 1 -I {} curl --request PUT --data '{ "key": {} }' http://vault:8200/v1/sys/unseal
@@ -23,10 +23,16 @@ VAULT_TOKEN=`jq '.root_token' ./.secret/shamir_shares | tr -d '"'`
 echo "VAULT_TOKEN=${VAULT_TOKEN}" > .env
 
 # login
-./bin/vault login ${VAULT_TOKEN}
+# ./bin/vault login ${VAULT_TOKEN}
 
 # transit
-./bin/vault secrets enable transit
+# ./bin/vault secrets enable transit
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request POST \
+    --data '{ "type": "transit" }' \
+    http://vault:8200/v1/sys/mounts/transit
+
 
 # secp256k1 plugin 
 echo "sha256 for file...${PLUGIN_FILE}"
