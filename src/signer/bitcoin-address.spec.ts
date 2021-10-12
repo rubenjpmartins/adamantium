@@ -1,9 +1,12 @@
 import { Hasher, HASH_ALGO } from "./hasher"
 import { base58 } from "ethers/lib/utils"
 
-describe('Eth address', () => {
+describe('BTC address', () => {
 
-    it('(OK) Generate ETH address from public key', () => {
+    it('(OK) Generate BTC address from public key', () => {
+        /**
+         * Base 58 ( Network byte + RIPEMD160 ( SHA-256 ( compressedPubKey) ) + first4BytesOfCheckSum )
+         */
         const compressedPubKey: Buffer = Buffer.from('02c53c5ad7cd004a42db8a315148a0d130dc2ba5b24a618d42bab8e6f67976a9e6', 'hex')
     
         const sha256Hash: Buffer = Hasher.hash(compressedPubKey, HASH_ALGO.SHA256)
