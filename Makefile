@@ -46,6 +46,9 @@ test-fix-secp256k1:
 test-eth-addr:
 	yarn test:single src/signer/ethereum-address.*
 
+test-btc-addr:
+	yarn test:single src/signer/bitcoin-address*
+
 test-eth-tx-hash:
 	yarn test:e2e:single test/tx-hasher*
 
