@@ -70,21 +70,6 @@ describe('Malleability', () => {
         // message
         const msg: Buffer = Buffer.from(signedMessage.msg, 'hex')
 
-        // orderOfCurve -> nr of possible points over a specific field (i.e, secp256k1 field)
-        const orderOfCurve: BN = new BN(Buffer.from(ec.curve.n.toString(16), 'hex'))
-
-        // Half the curve order in ethereum is valid
-        // Only secp256k1.n / 2 is valid
-        const halfTheOrder: BN = orderOfCurve.divn(2)
-
-        // Do we have a signature on the wrong side of the curve? 
-        if (new BN(s).gt(halfTheOrder)) {
-            console.log(`bad S!`)
-
-            // invert s!
-            s = orderOfCurve.sub(new BN(s)).toBuffer()
-        }
-
         // valid signature?
         expect(ecService.verify(msg, ECCurve.secp256k1, HASH_ALGO.KECCAK256, pub, r, s)).toBe(true)
     })
