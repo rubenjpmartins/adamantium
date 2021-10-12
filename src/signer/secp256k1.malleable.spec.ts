@@ -88,7 +88,7 @@ describe('Malleability', () => {
 
         // Half the curve order in ethereum is valid
         // Only secp256k1.n / 2 is valid
-        const halfTheOrder: BN = orderOfCurve.divn(2)
+        const halfTheOrder: BN = orderOfCurve.divn(2).addn(1)
 
         // Do we have a signature on the wrong side of the curve? 
         if (new BN(s).gt(halfTheOrder)) {
