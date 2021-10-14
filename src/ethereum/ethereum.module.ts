@@ -11,7 +11,7 @@ import { NonceService } from "./services/nonce.service";
         TypeOrmModule.forFeature([NonceEntity]),
         SignerModule, 
         HttpModule.register({
-            baseURL: 'https://e0rcwu0tin:DE81xqmgPCgRZzqW1c2l5fi2FN3zHCLr96b6DjHAwY4@e0y58xo76i-e0th4myjv4-rpc.de0-aws.kaleido.io/'
+            baseURL: 'https://e0om6vzrdj:3uEPfapzgYvnfuFG-vlvvtLI0bYujkG-CIsfLwvGGH8@e0y58xo76i-e0gvxromxi-rpc.de0-aws.kaleido.io/'
     })],
     controllers: [EthereumController],
     providers: [NonceService]

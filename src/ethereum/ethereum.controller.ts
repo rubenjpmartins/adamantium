@@ -123,6 +123,7 @@ export class EthereumController {
 
         } catch (error) {
             Logger.error(error)
+            throw error
         }
     }
 }
